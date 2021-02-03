@@ -4,7 +4,7 @@ Otus course Algorithms and data structures
 
 ## ДЗ 1. Циклы и рекурсия
 
-1. Cоздана система тестирования и проверена на задаче "Lenght String"
+1. Cоздана система тестирования и проверена на задаче "Length String"
 
         python console_tester.py --help
         usage: console_tester.py [-h] prog_exec test_dir
