@@ -1,6 +1,6 @@
 import argparse
 
-from typing import List
+from decimal import Decimal, ROUND_HALF_UP
 
 
 def init_argparse() -> argparse.ArgumentParser:
@@ -10,59 +10,58 @@ def init_argparse() -> argparse.ArgumentParser:
     return parser
 
 
-def power_iter(a: float, n: int) -> float:
+def power_iter(a: Decimal, n: int) -> Decimal:
     """Итеративное возведение в степень"""
     if n == 0:
-        return 1
+        return 1.0
 
-    p: float = a
+    a = Decimal(a)
+    p: Decimal = a
     for _ in range(1, n):
-        p *= a
-    return p
+        p = Decimal(p * a)
+
+    return Decimal(p).quantize(Decimal('.00000000001'), rounding=ROUND_HALF_UP)
 
 
-def power_two(a: float, n: int) -> float:
+def power_two(a: Decimal, n: int) -> Decimal:
     """Возведение в степень через степень двойки
     с домножением"""
     if n == 0:
-        return 1
+        return 1.0
 
     i: int = 1
-    p: float = a
+    a = Decimal(a)
+    p: Decimal = a
     while i * 2 <= n:
-        p *= p
+        p = Decimal(p * p)
         i *= 2
 
     for _ in range(n - i):
-        p *= a
+        p = Decimal(p * a)
 
-    return p
+    return Decimal(p).quantize(Decimal('.00000000001'), rounding=ROUND_HALF_UP)
 
 
-def power_decomp(a: float, n: int) -> float:
+def power_decomp(a: Decimal, n: int) -> Decimal:
     """Возведение в степень через двоичное разложение
     показателя степени"""
     if n == 0:
-        return 1
+        return 1.0
 
-    i: int = 1
-    p: float = a
-    plist: List[float] = [a]
-    d: int = n
-    lst: List[int] = [n % 2]
-    while i * 2 <= n:
-        p *= p
-        i *= 2
-        d //= 2
-        lst.append(d % 2)
-        plist.append(p)
+    base: Decimal = Decimal(a)
+    pwr: int = n
+    res: Decimal = Decimal(1)
+    while pwr > 1:
+        if pwr % 2 == 1:
+            res = Decimal(res * base)
 
-    result: float = 1
-    for count, value in enumerate(lst):
-        if value == 1:
-            result *= plist[count]
+        base = Decimal(base * base)
+        pwr //= 2
 
-    return result
+    if pwr > 0:
+        res = Decimal(res * base)
+
+    return Decimal(res).quantize(Decimal('.00000000001'), rounding=ROUND_HALF_UP)
 
 
 def main() -> None:
@@ -71,9 +70,9 @@ def main() -> None:
     real_num: float = args.real_num
     pwr: int = args.pwr
 
-    # print(format(power_iter(real_num, pwr), '.11f'))
-    # print(format(power_two(real_num, pwr), '.11f'))
-    print(format(power_decomp(real_num, pwr), '.11f'))
+    print(power_decomp(real_num, pwr))
+    # print(power_two(real_num, pwr))
+    # print(power_iter(real_num, pwr))
 
 
 if __name__ == '__main__':
