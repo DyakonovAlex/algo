@@ -3,6 +3,7 @@ import os
 import re
 import collections
 import subprocess
+import time
 
 
 def init_argparse() -> argparse.ArgumentParser:
@@ -24,7 +25,7 @@ def run_test(prog_exec: str, test_dir: str) -> None:
             if entry.is_file and (pattern_in.match(entry.name) or pattern_out.match(entry.name)):
                 with open(os.path.join(test_dir, entry.name), 'r') as reader:
                     if pattern_in.match(entry.name):
-                        data[entry.name.split('.')[1]] = reader.readline().strip()
+                        data[entry.name.split('.')[1]] = reader.readlines()
                     elif pattern_out.match(entry.name):
                         expect[entry.name.split('.')[1]] = reader.readline().strip()
 
@@ -33,15 +34,22 @@ def run_test(prog_exec: str, test_dir: str) -> None:
 
     print("Test:")
     for key, value in data.items():
-        actual = subprocess.run(["python", prog_exec, data[key]],
+        prm = ' '.join(map(lambda s: s.strip(), data[key]))
+        # print("python", prog_exec, prm)
+        start_time = time.time()
+        actual = subprocess.run('python ' + prog_exec + ' ' + prm,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE,
-                                   text=True)
+                                   text=True,
+                                   shell=True)
+
+        exec_time = (time.time() - start_time)
+
         if actual.stderr:
             print('Error:\n\t' + actual.stderr)
 
         if actual.stdout:
-            print(f'{key}:\tResult: {expect[key] == actual.stdout.strip()}\t{expect[key]} = {actual.stdout.strip()}')
+            print(f'{key}:\tTime: {exec_time} sec\tResult: {expect[key] == actual.stdout.strip()}\t{expect[key]} = {actual.stdout.strip()}')
 
 
 def main() -> None:
