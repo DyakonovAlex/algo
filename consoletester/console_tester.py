@@ -32,12 +32,18 @@ def run_test(prog_exec: str, test_dir: str) -> None:
     data = collections.OrderedDict(sorted(data.items()))
     expect = collections.OrderedDict(sorted(expect.items()))
 
-    print("Test:")
+    template_head = "|{:^10}|{:^60}|{:^50}|{:^10}|"
+    template = "|{:^10}|{:<60}|{:^50}|{:^10}|"
+
+    print(template_head.format("Num", "Shell", "Time (sec)", "Result"))
+    print(template_head.format('-' * 8, '-' * 58, '-' * 48, '-' * 8))
+
     for key, value in data.items():
         prm = ' '.join(map(lambda s: s.strip(), data[key]))
-        # print("python", prog_exec, prm)
+        shell_exec = 'python ' + prog_exec + ' ' + prm
+
         start_time = time.time()
-        actual = subprocess.run('python ' + prog_exec + ' ' + prm,
+        actual = subprocess.run(shell_exec,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE,
                                    text=True,
@@ -49,7 +55,10 @@ def run_test(prog_exec: str, test_dir: str) -> None:
             print('Error:\n\t' + actual.stderr)
 
         if actual.stdout:
-            print(f'{key}:\tTime: {exec_time} sec\tResult: {expect[key] == actual.stdout.strip()}\t{expect[key]} = {actual.stdout.strip()}')
+            print(template.format(key,
+                                  shell_exec,
+                                  exec_time,
+                                  'Pass' if expect[key] == actual.stdout.strip() else 'Fail'))
 
 
 def main() -> None:
