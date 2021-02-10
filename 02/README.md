@@ -2,8 +2,7 @@
 
 Otus course Algorithms and data structures
 
-
-## ДЗ 2. Алгебраические алгоритмы
+## 2. Алгебраические алгоритмы
 
 1. power - задача возведения в степень:
    1. Итеративный (n умножений)
@@ -84,25 +83,3 @@ Otus course Algorithms and data structures
 |    10    |python ../02/primenumbers/primenum.py 1000000      | 1.4036412239074707    | 0.20000386238098145   | 0.3630061149597168    |
 |    11    |python ../02/primenumbers/primenum.py 10000000     | 32.25389909744263     | 2.3835761547088623    | 3.5481419563293457    |
 |    12    |python ../02/primenumbers/primenum.py 100000000    | xxxxxxxxxxxxxxxxxxx   | 23.466675519943237    | 39.15320873260498     |
-
-## ДЗ 1. Циклы и рекурсия
-
-1. Cоздана система тестирования и проверена на задаче "Length String"
-
-        python console_tester.py --help
-        usage: console_tester.py [-h] prog_exec test_dir
-
-        Console Tester
-
-        positional arguments:
-        prog_exec   Full path for program execute
-        test_dir    Full path to the test directory
-
-        optional arguments:
-        -h, --help  show this help message and exit
-
-        python console_tester.py ../01/strlen/strlen.py ../01/test/0_strlen
-
-2. Решена задача Lucky Tickets
-
-        python console_tester.py ../01/tickets/ticket.py ../01/test/1_tickets
