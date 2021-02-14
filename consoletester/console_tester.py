@@ -27,7 +27,7 @@ def run_test(prog_exec: str, test_dir: str) -> None:
                     if pattern_in.match(entry.name):
                         data[entry.name.split('.')[1]] = reader.readlines()
                     elif pattern_out.match(entry.name):
-                        expect[entry.name.split('.')[1]] = reader.readline().strip()
+                        expect[entry.name.split('.')[1]] = reader.readlines()
 
     data = collections.OrderedDict(sorted(data.items()))
     expect = collections.OrderedDict(sorted(expect.items()))
@@ -55,10 +55,13 @@ def run_test(prog_exec: str, test_dir: str) -> None:
             print('Error:\n\t' + actual.stderr)
 
         if actual.stdout:
+            exp = ' '.join(map(lambda s: s.strip(), expect[key]))
+            act = actual.stdout.strip().replace('\n', ' ')
+
             print(template.format(key,
                                   shell_exec,
                                   exec_time,
-                                  'Pass' if expect[key] == actual.stdout.strip() else 'Fail'))
+                                  'Pass' if exp == act else 'Fail'))
 
 
 def main() -> None:
