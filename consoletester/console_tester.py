@@ -58,8 +58,13 @@ def run_test(prog_exec: str, test_dir: str) -> None:
             exp = ' '.join(map(lambda s: s.strip(), expect[key]))
             act = actual.stdout.strip().replace('\n', ' ')
 
+            n = 51 if len(shell_exec) > 51 else len(shell_exec)
+            shl = shell_exec[:n]
+            if len(shell_exec) > 51:
+                shl += '...'
+
             print(template.format(key,
-                                  shell_exec,
+                                  shl,
                                   exec_time,
                                   'Pass' if exp == act else 'Fail'))
 
