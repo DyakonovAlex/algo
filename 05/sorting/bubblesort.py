@@ -1,22 +1,37 @@
 import init
 
 
-def bubble_sort(arr: list) -> None:
-    n = len(arr)
+def bubble_sort(arr: list, simulation: bool = False) -> None:
+    swapped = True
+    last_index = len(arr) - 1
 
-    for i in range(n - 1):
-        for j in range(n - i - 1):
-            if arr[j] > arr[j + 1]:
-                arr[j], arr[j + 1] = arr[j + 1], arr[j]
+    if simulation:
+        print("begin sort array: ", *arr)
+
+    while swapped:
+        swapped = False
+        if simulation:
+            print("=" * 100)
+        n = last_index
+        for i in range(n):
+            if simulation:
+                print("i = ", i, "last index", last_index, ":", *arr)
+
+            if arr[i] > arr[i + 1]:
+                arr[i], arr[i + 1] = arr[i + 1], arr[i]
+                swapped = True
+                last_index = i
+                if simulation:
+                    print("swapped", "last index", last_index, ":", *arr)
+
+    if simulation:
+        print("end sort array: ", *arr)
 
 
 def main():
-    parser = init.init_argparse()
-    args = parser.parse_args()
-    arr_len: int = args.len
-    array: list = list(map(int, args.array.split(",")))
-    bubble_sort(array)
-    print(",".join(str(x) for x in array))
+    array: list = init.get_array()
+    bubble_sort(array, simulation=False)
+    init.print_result(array)
 
 
 if __name__ == '__main__':
