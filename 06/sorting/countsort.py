@@ -1,39 +1,3 @@
-def counting_sort_arr(arr: list, simulation: bool = False) -> None:
-    if simulation:
-        print("begin sort array: ", *arr)
-
-    k = 9
-    counts = [0 for _ in range(k + 1)]
-    for x in arr:
-        counts[x] += 1
-    if simulation:
-        print("counts:", *counts)
-
-    total = 0
-    for i in range(k + 1):
-        counts[i] += total
-        total = counts[i]
-    if simulation:
-        print("total counts:", *counts)
-        print("=" * 100)
-
-    outputs = [0 for _ in range(len(arr))]
-    for x in arr[::-1]:
-        tmp = counts[x] - 1
-        outputs[tmp] = x
-        counts[x] -= 1
-        if simulation:
-            print(f"x = {x}, index in outputs = {counts[x]}", ":", *outputs)
-            print("=" * 100)
-
-    if simulation:
-        print("end sort array: ", *outputs)
-        print("=" * 100)
-        print()
-
-    arr[:] = outputs[:]
-
-
 def counting_sort(items: list, simulation: bool = False) -> None:
     if simulation:
         print("begin sort array: ", *items)
