@@ -44,11 +44,11 @@ class BST:
             node = self._search(node.right, key)
         return node
 
-    def delete(self, key: int) -> None:
+    def remove(self, key: int) -> None:
         if self.root:
-            self._delete(self.root, key)
+            self._remove(self.root, key)
 
-    def _delete(self, node: Node, key: int) -> Optional[Node]:
+    def _remove(self, node: Node, key: int) -> Optional[Node]:
         if not node:
             return None
 
@@ -57,16 +57,16 @@ class BST:
                 left_right_most = node.left
                 while left_right_most.right:
                     left_right_most = left_right_most.right
-                node.left = self._delete(node.left, left_right_most.key)
+                node.left = self._remove(node.left, left_right_most.key)
                 left_right_most.right = node.right
                 left_right_most.left = node.left
                 return left_right_most
             else:
                 return node.right
         elif key < node.key:
-            node.left = self._delete(node.left, key)
+            node.left = self._remove(node.left, key)
         else:
-            node.right = self._delete(node.right, key)
+            node.right = self._remove(node.right, key)
         return node
 
     def inorder(self) -> List[int]:
@@ -101,7 +101,7 @@ def main():
 
     print("=" * 100)
     print("delete 10")
-    bst.delete(10)
+    bst.remove(10)
     print("in order:", *bst.inorder())
 
     print("=" * 100)
