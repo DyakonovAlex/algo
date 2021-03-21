@@ -1,10 +1,14 @@
 class Node:
-    __slots__ = ('left', 'right', 'key')
+    __slots__ = ('left', 'right', 'key', 'parent', 'height', 'bf')
 
     def __init__(self, key: int):
         self.left = None
         self.right = None
         self.key = key
+
+        self.parent = None
+        self.height = 1
+        self.bf = 0
 
     def __str__(self):
         return str(self.key)
