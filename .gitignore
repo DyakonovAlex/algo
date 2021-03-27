@@ -3,3 +3,4 @@ venv
 __pycache__
 05/test
 05/sorting/test
+.vscode/settings.json
