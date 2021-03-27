@@ -1,16 +1,17 @@
 class Node:
-    __slots__ = ('left', 'right', 'key', 'parent', 'height', 'bf')
+    __slots__ = ('left', 'right', 'key', 'height')
 
     def __init__(self, key: int):
         self.left = None
         self.right = None
         self.key = key
 
-        self.parent = None
         self.height = 1
-        self.bf = 0
 
     def __str__(self):
+        return str(self.key)
+
+    def __repr__(self):
         return str(self.key)
 
     def display(self):

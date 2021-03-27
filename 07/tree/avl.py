@@ -1,4 +1,4 @@
-import logging
+import functools
 
 from typing import Optional, List
 
@@ -8,7 +8,25 @@ from node import Node
 class AVL:
     __slots__ = ('root',)
 
-    def __init__(self, *args):
+    def debug(func):
+        @functools.wraps(func)
+        def wrapper_debug(*args):
+            args_repr = [repr(a) for a in args[1:]]
+            signature = ", ".join(args_repr)
+            print(f"Befor calling {func.__name__}({signature})")
+            args[0].get_root().display()
+            print()
+            value = func(*args)
+            print(f"After calling {func.__name__}({signature})")
+            args[0].get_root().display()
+            print()
+            print("-" * 100)
+            print()
+            return value
+
+        return wrapper_debug
+
+    def __init__(self):
         self.root = None
 
     def get_root(self) -> Node:
@@ -16,56 +34,25 @@ class AVL:
 
     def insert(self, key) -> None:
         if self.root:
-            self._insert(self.root, key, None)
+            self._insert(self.root, key)
         else:
             self.root = Node(key)
 
-    def _insert(self, node: Node, key: int, parent: Node) -> Node:
+    def _insert(self, node: Node, key: int) -> Node:
         if node is None:
-            new = Node(key)
-            new.parent = parent
-            return new
+            return Node(key)
 
         if key < node.key:
-            node.left = self._insert(node.left, key, node)
+            node.left = self._insert(node.left, key)
         elif key > node.key:
-            node.right = self._insert(node.right, key, node)
+            node.right = self._insert(node.right, key)
 
-        # Step 2 - Update the height of the
-        # ancestor node
-        node.height = 1 + max(self.get_height(node.left),
-                              self.get_height(node.right))
+        node = self.rebalance(node)
 
-        # Step 3 - Get the balance factor
-        node.bf = self.get_height(node.left) - self.get_height(node.right)
-
-        # Step 4 - If the node is unbalanced,
-        # then try out the 4 cases
-        # Case 1 - Left Left
-        if node.bf > 1 and key < node.left.key:
-            return self.right_rotate(node)
-
-        # Case 2 - Right Right
-        if node.bf < -1 and key > node.right.key:
-            return self.left_rotate(node)
-
-        # Case 3 - Left Right
-        if node.bf > 1 and key > node.left.key:
-            node.left = self.left_rotate(node.left)
-            return self.right_rotate(node)
-
-        # Case 4 - Right Left
-        if node.bf < -1 and key < node.right.key:
-            node.right = self.right_rotate(node.right)
-            return self.left_rotate(node)
-
-        print("=" * 100)
-        self.get_root().display()
-
-        # self._rebalance(node)
         return node
 
-    def get_height(self, node: Node):
+    @staticmethod
+    def get_height(node: Node):
         if node is None:
             return 0
         return node.height
@@ -76,85 +63,72 @@ class AVL:
 
         return self.get_height(node.left) - self.get_height(node.right)
 
-    def rebalance(self) -> None:
-        self._rebalance(self.root)
+    def rebalance(self, node: Node) -> Node:
 
-    def _rebalance(self, node: Node) -> None:
+        node.height = 1 + max(self.get_height(node.left),
+                              self.get_height(node.right))
 
-        # Step 3 - Get the balance factor
-        balance = self.get_balance(node)
+        bf = self.get_balance(node)
 
-        # Step 4 - If the node is unbalanced,
-        # then try out the 4 cases
         # Case 1 - Left Left
-        if balance > 1 and self.get_balance(node.left) >= 0:  # node.key < node.left.key:
+        if bf > 1 and self.get_balance(node.left) >= 0:
             return self.right_rotate(node)
 
-        # Case 2 - Right Right
-        if balance < -1 and node.key > node.right.key:
+            # Case 2 - Right Right
+        if bf < -1 and self.get_balance(node.right) <= 0:
             return self.left_rotate(node)
 
-        # Case 3 - Left Right
-        if balance > 1 and node.key > node.left.key:
+            # Case 3 - Left Right
+        if bf > 1 and self.get_balance(node.left) < 0:
             node.left = self.left_rotate(node.left)
             return self.right_rotate(node)
 
-        # Case 4 - Right Left
-        if balance < -1 and node.key < node.right.val:
+            # Case 4 - Right Left
+        if bf < -1 and self.get_balance(node.right) > 0:
             node.right = self.right_rotate(node.right)
             return self.left_rotate(node)
 
         return node
 
-    def _update_height(self, node: Node) -> None:
-        if node:
-            l_h = node.left.height if node.left else 0
-            r_h = node.right.height if node.right else 0
-            node.height = 1 + max(l_h, r_h)
-            self.update_heights(node.parent)
+    def left_rotate(self, node) -> Node:
 
-    def left_rotate(self, z) -> Node:
-
-        y = z.right
-        T2 = y.left
+        y = node.right
+        y_left = y.left
 
         # Perform rotation
-        y.left = z
+        y.left = node
 
-        y.parent = z.parent
-        z.parent = y
-        if y.parent is None:
+        # Check node is root
+        if self.get_root() == node:
             self.root = y
 
-        z.right = T2
+        node.right = y_left
 
         # Update heights
-        z.height = 1 + max(self.get_height(z.left),
-                           self.get_height(z.right))
+        node.height = 1 + max(self.get_height(node.left),
+                              self.get_height(node.right))
         y.height = 1 + max(self.get_height(y.left),
                            self.get_height(y.right))
 
-        # Return the new root
         return y
 
-    def right_rotate(self, z) -> Node:
+    def right_rotate(self, node) -> Node:
 
-        y = z.left
-        T3 = y.right
+        y = node.left
+        y_right = y.right
 
         # Perform rotation
-        y.right = z
+        y.right = node
 
-        y.parent = z.parent
-        z.parent = y
-        if y.parent is None:
+        # Check node is root
+        if self.get_root() == node:
             self.root = y
 
-        z.left = T3
+        node.left = y_right
 
         # Update heights
-        z.height = 1 + max(self.get_height(z.left),
-                           self.get_height(z.right))
+        node.height = 1 + max(self.get_height(node.left),
+                              self.get_height(node.right))
         y.height = 1 + max(self.get_height(y.left),
                            self.get_height(y.right))
 
@@ -190,6 +164,7 @@ class AVL:
                 node.left = self._remove(node.left, left_right_most.key)
                 left_right_most.right = node.right
                 left_right_most.left = node.left
+                left_right_most = self.rebalance(left_right_most)
                 return left_right_most
             else:
                 return node.right
@@ -197,16 +172,19 @@ class AVL:
             node.left = self._remove(node.left, key)
         else:
             node.right = self._remove(node.right, key)
+
+        node = self.rebalance(node)
+
         return node
 
-    def inorder(self) -> List[int]:
+    def inorder(self) -> List[str]:
         return self._inorder(self.root)
 
-    def _inorder(self, node) -> List[int]:
-        arr = []
+    def _inorder(self, node) -> List[str]:
+        arr: List[str] = []
         if node:
             arr = self._inorder(node.left)
-            arr.append(node.key)
+            arr.append(f"{node.key} - {node.height}")
             arr = arr + self._inorder(node.right)
         return arr
 
@@ -214,12 +192,14 @@ class AVL:
 def main():
     avl = AVL()
 
-    arr = [20, 10, 30, 4, 16, 7, 5]  # , 8, 14, 18, 11, 12]
+    arr = [20, 10, 30, 4, 16, 7, 5, 8, 14, 18, 11, 12]
     for x in arr:
         avl.insert(x)
-
-    print("=" * 100)
-    avl.get_root().display()
+        # print()
+        # print(f"Added {x}")
+        # print()
+        # avl.get_root().display()
+        # print("=" * 100)
 
     print("=" * 100)
     print("in order:", *avl.inorder())
@@ -228,10 +208,12 @@ def main():
     print("search 16:", avl.search(16))
     print("search 40:", avl.search(43))
 
-    # print("=" * 100)
-    # print("delete 10")
-    # avl.remove(10)
-    # print("in order:", *avl.inorder())
+    print("=" * 100)
+    avl.remove(5)
+    print("in order:", *avl.inorder())
+
+    print("=" * 100)
+    avl.get_root().display()
 
 
 if __name__ == '__main__':
