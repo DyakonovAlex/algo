@@ -26,33 +26,35 @@ class HashTableChain:
             hashsum %= self.capacity
         return hashsum
 
-    def put(self, key: str, value: Any, is_first: bool = True) -> None:
+    def put(self, key: str, value: Any, rehash: bool = False, first: bool = True) -> None:
         index = self.hash(key)
         node = self.buckets[index]
 
-        # update
-        _node = node
-        while _node is not None and _node.key != key:
-            _node = _node.next
-        if _node is not None:
-            _node.value = value
-            return
+        if not rehash:
+            # update
+            _node = node
+            while _node is not None and _node.key != key:
+                _node = _node.next
+            if _node is not None:
+                _node.value = value
+                return
 
-        # insert
-        self.size += 1
-        if self.size > self.threshold:
-            self.rehash()
-            index = self.hash(key)
-            node = self.buckets[index]
+            # insert
+            self.size += 1
+            if self.size > self.threshold:
+                self.rehash()
+                index = self.hash(key)
+                node = self.buckets[index]
 
         if node is None:
             self.buckets[index] = Node(key, value)
             return
 
-        if is_first:
+        if first:
             _next = node
             node = Node(key, value)
             node.next = _next
+            self.buckets[index] = node
         else:
             _prev = node
             while node is not None:
@@ -90,7 +92,11 @@ class HashTableChain:
             prev.next = prev.next.next
         return result
 
-    def rehash(self) -> None:
+    def rehash(self, debug=False) -> None:
+        if debug:
+            print("Before rehash")
+            self.display()
+            print("-" * 100)
         _buckets = [bucket for bucket in self.buckets if bucket is not None]
         self.capacity *= 2
         self.threshold = int(self.capacity * DEFAULT_LOAD_FACTOR)
@@ -99,12 +105,48 @@ class HashTableChain:
         for bucket in _buckets:
             node = bucket
             while node is not None:
-                self.put(node.key, node.value, False)
+                self.put(node.key, node.value, rehash=True, first=False)
                 node = node.next
+
+        if debug:
+            print("After rehash")
+            self.display()
+            print("-" * 100)
+            print()
+
+    def display(self):
+        for i, node in enumerate(self.buckets):
+            print(f"{i}:\t\t", end="")
+            _node = node
+            while _node is not None:
+                print(f"{_node.value} -> ", end="")
+                _node = _node.next
+            print()
 
 
 def main():
-    print("test")
+    tbl = HashTableChain()
+    arr = [i * 10 for i in range(1, 34)]
+    print()
+    print(*arr)
+    print("-" * 100)
+    for a in arr:
+        tbl.put(str(a), a)
+
+    print()
+    tbl.display()
+
+    print("-" * 100)
+    print(f"get key = 30: {tbl.get('30')}")
+
+    print("-" * 100)
+    print(f"del key = 160: {tbl.del_('160')}")
+
+    print("-" * 100)
+    print(f"del key = 40: {tbl.del_('40')}")
+
+    print()
+    tbl.display()
 
 
 if __name__ == '__main__':
