@@ -1,14 +1,30 @@
 from typing import Any, List, Final
 
-from node import Node
 
 INITIAL_CAPACITY: Final = 11
 DEFAULT_LOAD_FACTOR: Final = 0.75
 
 
+class Node:
+    __slots__ = ("key", "value", "next")
+
+    def __init__(self, key: str, value: Any):
+        self.key = key
+        self.value = value
+        self.next = None
+
+    def __str__(self):
+        return f"<Node: ({self.key}, {self.value}), next: {self.next is not None}>"
+
+    def __repr__(self):
+        return str(self)
+
+
 class HashTableChain:
+
     capacity: int
     size: int
+    threshold: int
     buckets: List[Node]
 
     __slots__ = ("capacity", "size", "buckets", "threshold")
