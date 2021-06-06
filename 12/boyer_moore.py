@@ -86,7 +86,7 @@ def find_shift(txt: str, pattern: str) -> int:
 
 def create_suffix(pattern) -> dict:
     # Создание словаря суффиксов
-    result = dict()
+    result: dict = dict()
     pattern_len = len(pattern)
     all_suffix = dict()
 
@@ -98,7 +98,7 @@ def create_suffix(pattern) -> dict:
             result[pattern[p]] = pattern_len - p - 1
 
     for k in all_suffix:
-        v = rfind_simple(pattern[0:pattern_len - 1], k)
+        v = rfind_simple(pattern[0: pattern_len - 1], k)
         # Ключи извлекаются в том же порядке, что и добавлялись
         # Если ключа в строке нет, то можно больше не проверять
         if v == -1:
@@ -142,10 +142,13 @@ def main():
     # x = find_simple("substring", "string")
     # x = find_reverse("substring", "string")
     # x = find_shift(".kololokolokolokol.", "kolokol")
-    x = find_suffix(".kololokolokolokol.bc.abc.bc.c.tbcvbvc.abc.bc.c.abcbc.abc.bc.c.abc", "bc.abc.bc.c.abc")
+    x = find_suffix(
+        ".kololokolokolokol.bc.abc.bc.c.tbcvbvc.abc.bc.c.abcbc.abc.bc.c.abc",
+        "bc.abc.bc.c.abc",
+    )
     print(x)
     print("END")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
