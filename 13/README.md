@@ -35,5 +35,5 @@ $ python rle.py zip test.txt test.zip
 $ python rle.py unzip test.zip test_2.txt
 ```
 
-Не плохо работает для текстовой последовательности, типа "AAAAABBBCDGCBLL".  
+Неплохо работает для текстовой последовательности, типа "AAAAABBBCDGCBLL".  
 Плохо работает для [обычного текста](https://ocw.mit.edu/ans7870/6/6.006/s08/lecturenotes/files/t8.shakespeare.txt)
